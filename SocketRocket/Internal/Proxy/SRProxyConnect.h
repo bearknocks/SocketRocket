@@ -19,6 +19,8 @@ typedef void(^SRProxyConnectCompletion)(NSError *_Nullable error,
 
 - (instancetype)initWithURL:(NSURL *)url;
 
+- (instancetype)initWithSocket:(CFSocketNativeHandle)sock forUrl:(NSURL *)url;
+
 - (void)openNetworkStreamWithCompletion:(SRProxyConnectCompletion)completion;
 
 @end

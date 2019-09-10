@@ -312,11 +312,16 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
 
 - (void)open
 {
+    [self open:(CFSocketNativeHandle)0];
+}
+
+- (void)open:(CFSocketNativeHandle) sock
+{
     assert(_url);
     NSAssert(self.readyState == SR_CONNECTING, @"Cannot call -(void)open on SRWebSocket more than once.");
-
+    
     _selfRetain = self;
-
+    
     if (_urlRequest.timeoutInterval > 0) {
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_urlRequest.timeoutInterval * NSEC_PER_SEC));
         dispatch_after(popTime, dispatch_get_main_queue(), ^{
@@ -326,14 +331,18 @@ NSString *const SRHTTPResponseErrorKey = @"HTTPResponseStatusCode";
             }
         });
     }
-
-    _proxyConnect = [[SRProxyConnect alloc] initWithURL:_url];
-
+    
+    if (sock == 0)
+        _proxyConnect = [[SRProxyConnect alloc] initWithURL:_url];
+    else
+        _proxyConnect = [[SRProxyConnect alloc] initWithSocket:sock forUrl:_url];
+    
     __weak typeof(self) wself = self;
     [_proxyConnect openNetworkStreamWithCompletion:^(NSError *error, NSInputStream *readStream, NSOutputStream *writeStream) {
         [wself _connectionDoneWithError:error readStream:readStream writeStream:writeStream];
     }];
 }
+
 
 - (void)_connectionDoneWithError:(NSError *)error readStream:(NSInputStream *)readStream writeStream:(NSOutputStream *)writeStream
 {

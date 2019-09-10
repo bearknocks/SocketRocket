@@ -244,6 +244,8 @@ extern NSString *const SRHTTPResponseErrorKey;
  */
 - (void)open;
 
+- (void)open:(CFSocketNativeHandle) sock;
+
 /**
  Closes a web socket using `SRStatusCodeNormal` code and no reason.
  */

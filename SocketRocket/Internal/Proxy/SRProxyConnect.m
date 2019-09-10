@@ -26,6 +26,8 @@
 @implementation SRProxyConnect
 {
     SRProxyConnectCompletion _completion;
+    
+    CFSocketNativeHandle _socket;
 
     NSString *_httpProxyHost;
     uint32_t _httpProxyPort;
@@ -51,6 +53,8 @@
 {
     self = [super init];
     if (!self) return self;
+    
+    _socket = 0;
 
     _url = url;
     _connectionRequiresSSL = SRURLRequiresSSL(url);
@@ -58,6 +62,17 @@
     _writeQueue = dispatch_queue_create("com.facebook.socketrocket.proxyconnect.write", DISPATCH_QUEUE_SERIAL);
     _inputQueue = [NSMutableArray arrayWithCapacity:2];
 
+    return self;
+}
+
+- (instancetype)initWithSocket:(CFSocketNativeHandle)sock forUrl:(NSURL *)url
+{
+    self = [super init];
+    if (!self) return self;
+    
+    self = [self initWithURL:url];
+    _socket = sock;
+    
     return self;
 }
 
